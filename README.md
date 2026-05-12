@@ -8,7 +8,6 @@ Robô que varre o portal [pePI do INPI](https://busca.inpi.gov.br/pePI/jsp/paten
 
 ```
 Node.js >= 18
-npm install       (já instalado)
 ```
 
 ---
@@ -106,6 +105,86 @@ O scraper salva o progresso em `data/progress.json` e os IDs já vistos em `data
 | `pauseBetweenPages` | 2000ms | Intervalo entre páginas |
 | `pauseBetweenMonths` | 3000ms | Intervalo entre meses |
 | `fetchDetails` | — | Use `node scraper.js detail` |
+
+
+---
+
+## API REST
+
+
+
+### Endpoints disponíveis
+
+- `GET /api/health`
+- `GET /api/search`
+- `GET /api/patents/:numero`
+
+### 1) Health check
+
+```http
+GET /api/health
+```
+
+Retorna status do serviço e informações da base carregada.
+
+### 2) Busca paginada
+
+```http
+GET /api/search?q=energia&page=1&limit=20
+```
+
+Parâmetros suportados:
+
+- `q`: termo livre (busca em número, título, depositante, inventor, IPC, data e situação)
+- `numero`: filtro por número do processo
+- `titulo`: filtro por título
+- `depositante`: filtro por depositante
+- `ipc`: filtro por IPC
+- `page`: página (padrão `1`)
+- `limit`: itens por página (padrão `20`, máximo `100`)
+
+Exemplo:
+
+```http
+GET /api/search?depositante=PETROBRAS&ipc=G06&page=2&limit=50
+```
+
+Resposta:
+
+```json
+{
+  "total": 1234,
+  "page": 2,
+  "limit": 50,
+  "pages": 25,
+  "items": [
+    {
+      "numero": "BR 10 2024 001998 9",
+      "titulo": "SISTEMA E METODO ..."
+    }
+  ]
+}
+```
+
+### 3) Buscar por número de processo
+
+```http
+GET /api/patents/PI%200009520-6
+```
+
+Retorna o registro completo da patente, ou `404` se não encontrar.
+
+### Arquitetura da API
+
+- A API lê os dados de `data/patentes.jsonl`.
+- Usa cache em memória para acelerar consultas.
+- Recarrega automaticamente quando o arquivo JSONL muda.
+
+---
+
+Opcional (caso queira apontar para outro arquivo de base):
+
+- Variável de ambiente `INPI_DATA_FILE` com caminho do JSONL.
 
 
 # Modo rápido (só lista) — horas para completar
