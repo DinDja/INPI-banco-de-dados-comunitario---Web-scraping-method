@@ -62,14 +62,17 @@ node scraper.js enrich
 O scraper salva o progresso em `data/progress.json` e os IDs já vistos em `data/seen_ids.json`.  
 **Basta rodar o mesmo comando novamente** — ele retoma do ponto onde parou.
 
+Para evitar arquivos gigantes, a saída JSONL é particionada automaticamente por tamanho (veja `maxJsonlPartSizeMB` em `config.js`).
+
 ---
 
 ## Arquivos gerados
 
 | Arquivo | Descrição |
 |---|---|
-| `data/patentes.jsonl` | Base principal (JSONL) |
-| `data/patentes_enriched.jsonl` | Versão enriquecida (modo enrich) |
+| `data/patentes.jsonl` | Base principal (primeira parte) |
+| `data/patentes.part001.jsonl`, `data/patentes.part002.jsonl`, ... | Continuação automática da base quando atingir o limite de tamanho |
+| `data/patentes_enriched.jsonl` + `data/patentes_enriched.partNNN.jsonl` | Versão enriquecida (modo enrich), também particionada |
 | `data/progress.json` | Checkpoint de progresso |
 | `data/seen_ids.json` | IDs já processados (deduplicação) |
 | `data/errors.log` | Log de erros |
@@ -101,6 +104,8 @@ O scraper salva o progresso em `data/progress.json` e os IDs já vistos em `data
 | `startDate` | `01/01/2000` | Data de início da varredura |
 | `endDate` | hoje | Data de fim |
 | `mode` | `list` | `list`, `detail` ou `enrich` |
+| `maxJsonlPartSizeMB` | `25` | Tamanho máximo por arquivo JSONL antes de criar `*.partNNN.jsonl` |
+| `resumeFromNextMonth` | `true` | Ao retomar, começa no mês seguinte ao `lastMonth` do progresso |
 | `headless` | `true` | `false` para ver o browser |
 | `pauseBetweenPages` | 2000ms | Intervalo entre páginas |
 | `pauseBetweenMonths` | 3000ms | Intervalo entre meses |
@@ -176,7 +181,7 @@ Retorna o registro completo da patente, ou `404` se não encontrar.
 
 ### Arquitetura da API
 
-- A API lê os dados de `data/patentes.jsonl`.
+- A API lê os dados de `data/patentes.jsonl` e também de `data/patentes.partNNN.jsonl` (quando existirem).
 - Usa cache em memória para acelerar consultas.
 - Recarrega automaticamente quando o arquivo JSONL muda.
 

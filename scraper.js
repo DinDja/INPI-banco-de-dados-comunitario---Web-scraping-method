@@ -57,15 +57,33 @@ async function runScrape() {
 
     const months = generateMonths(cfg.startDate, cfg.endDate);
     log('Meses a varrer: ' + months.length + ' (' + cfg.startDate + ' → ' + cfg.endDate + ')\n');
+    log('Rotacao JSONL: ' + cfg.maxJsonlPartSizeMB + 'MB por arquivo (base: ' + cfg.outputFile + ')\n');
+
+    if (months.length === 0) {
+      throw new Error('Nenhum mês gerado para varredura. Verifique startDate/endDate em config.js (DD/MM/YYYY).');
+    }
 
     let startIdx = 0;
     if (progress.lastMonth) {
       const idx = months.indexOf(progress.lastMonth);
       if (idx >= 0) {
-        startIdx = idx;
-        log('⏩ Retomando a partir de ' + progress.lastMonth + '\n');
+        if (cfg.resumeFromNextMonth) {
+          startIdx = idx + 1;
+          if (startIdx >= months.length) {
+            log('✅ Checkpoint já está no último mês (' + progress.lastMonth + '). Nada pendente para varrer.\n');
+            return;
+          }
+          log('⏩ Retomando no mês seguinte ao checkpoint: ' + progress.lastMonth + ' → ' + months[startIdx] + '\n');
+        } else {
+          startIdx = idx;
+          log('⏩ Retomando a partir de ' + progress.lastMonth + '\n');
+        }
+      } else {
+        log('⚠️ Último mês salvo (' + progress.lastMonth + ') não encontrado no intervalo atual; iniciando do começo.\n');
       }
     }
+
+    let currentOutputFile = null;
 
     for (let mi = startIdx; mi < months.length; mi++) {
       const month = months[mi];
@@ -115,7 +133,11 @@ async function runScrape() {
               }
 
               seenIds.add(id);
-              appendRecord(cfg.outputFile, record);
+              const writtenFile = appendRecord(cfg.outputFile, record, { maxPartSizeMB: cfg.maxJsonlPartSizeMB });
+              if (writtenFile !== currentOutputFile) {
+                currentOutputFile = writtenFile;
+                log('  🗂 Gravando em: ' + writtenFile);
+              }
               newThisMonth++;
               progress.totalSaved++;
 
@@ -194,12 +216,17 @@ async function runEnrich() {
 
   try {
     let done = 0;
+    let currentEnrichedOutputFile = null;
     for (const record of toEnrich) {
       const id = record.numero?.trim();
       if (enrichedIds.has(id)) { done++; continue; }
 
       const enriched = await fetchPatentDetail(context, record, cfg);
-      appendRecord(enrichedFile, enriched);
+      const writtenFile = appendRecord(enrichedFile, enriched, { maxPartSizeMB: cfg.maxJsonlPartSizeMB });
+      if (writtenFile !== currentEnrichedOutputFile) {
+        currentEnrichedOutputFile = writtenFile;
+        log('  🗂 Gravando enriquecimento em: ' + writtenFile);
+      }
       enrichedIds.add(id);
       done++;
 

@@ -109,7 +109,7 @@ async function submitSearch(page, cfg, fields, dateFrom, dateTo) {
   await page.goto(cfg.searchUrl, { waitUntil: 'domcontentloaded', timeout: cfg.navigationTimeout });
   await sleep(600);
 
-  // Se redirecionou para login, refaz o login e tenta de novo
+  // Se redirecionou para login, refaz o login e tenta de novo...
   if (page.url().includes('LoginController') || page.url().includes('login')) {
     log('  Sessao expirada, re-login...');
     await loginAnonymous(page, cfg);

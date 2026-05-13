@@ -23,6 +23,15 @@ module.exports = {
   // 'enrich'  → apenas enriquece patentes já salvas que ainda não têm detalhe
   mode: 'list',
 
+  // ── Armazenamento ───────────────────────────────────────────────────────
+  // Divide automaticamente a base em arquivos menores: patentes.part001.jsonl, ...
+  // Use 0 para desativar a rotação e gravar tudo em um único arquivo.
+  maxJsonlPartSizeMB: Number(process.env.INPI_MAX_JSONL_PART_MB || 25),
+
+  // Ao retomar, iniciar no mes seguinte ao checkpoint (evita revarrer mes ja finalizado).
+  // Defina false se quiser reprocessar o mesmo mes em caso de interrupcao no meio.
+  resumeFromNextMonth: true,
+
   // ── Pausas (ms) ─────────────────────────────────────────────────────────
   pauseBetweenPages:   5000,   // entre paginas de resultados (aumentado para evitar timeout de sessao)
   pauseBetweenMonths:  2000,   // entre meses
