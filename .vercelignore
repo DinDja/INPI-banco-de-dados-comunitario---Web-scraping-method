@@ -1,0 +1,7 @@
+# Incluir todos os arquivos de dados no deploy da Vercel
+# NÃO ignore arquivos de dados
+!data/patentes.jsonl
+!data/patentes.part001.jsonl
+!data/patentes.part002.jsonl
+!data/progress.json
+!data/seen_ids.json
