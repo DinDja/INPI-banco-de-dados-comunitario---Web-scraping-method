@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/**/*.js": {
-      "includeFiles": "data/patentes*.jsonl",
+      "includeFiles": "data/*.jsonl",
       "maxDuration": 60
     }
   }

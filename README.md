@@ -73,6 +73,24 @@ Regras aplicadas no scraper de programas:
   - so aceita despacho `730` (Expedicao do Certificado de Registro);
   - rejeita registros cujo texto de despacho contenha `indefer`.
 
+### 6. Marcas (scraper isolado)
+
+Coleta dados da RPI (Secao V - Marcas) em um pipeline separado dos scrapers de patentes e programas.
+
+```bash
+npm run scrape:marcas
+# ou
+node scraper_marcas.js
+```
+
+Regras aplicadas no scraper de marcas:
+
+- Usa arquivos dedicados (nao sobrescreve JSONL/checkpoints de patentes/programas).
+- Mantem rotacao automatica de JSONL por tamanho (`25MB` por padrao).
+- Le o XML de marcas dentro do arquivo `RM{RPI}.zip` publicado no portal da RPI.
+- Por padrao, salva apenas registros com nome de marca preenchido (`INPI_MARCAS_REQUIRE_NOME=false` para desativar).
+- Permite filtro opcional por codigo de despacho via `INPI_MARCAS_DISPATCH_CODES`.
+
 ---
 
 ## Retomada automática
@@ -104,6 +122,16 @@ Para evitar arquivos gigantes, a saída JSONL é particionada automaticamente po
 | `data/progress_programas.json` | Checkpoint do scraper de programas |
 | `data/seen_ids_programas.json` | IDs já processados (deduplicação) |
 | `data/errors_programas.log` | Log de erros do scraper de programas |
+
+### Arquivos gerados (marcas)
+
+| Arquivo | Descrição |
+|---|---|
+| `data/marcas.jsonl` | Base principal de marcas |
+| `data/marcas.part001.jsonl`, `data/marcas.part002.jsonl`, ... | Continuação automática quando atingir o limite de tamanho |
+| `data/progress_marcas.json` | Checkpoint do scraper de marcas |
+| `data/seen_ids_marcas.json` | IDs já processados (deduplicação) |
+| `data/errors_marcas.log` | Log de erros do scraper de marcas |
 
 ---
 
@@ -151,6 +179,7 @@ Para evitar arquivos gigantes, a saída JSONL é particionada automaticamente po
 - `GET /api/health`
 - `GET /api/search`
 - `GET /api/patents/:numero`
+- `GET /api/marcas/:numero`
 
 ### 1) Health check
 
@@ -166,13 +195,28 @@ Retorna status do serviço e informações da base carregada.
 GET /api/search?q=energia&page=1&limit=20
 ```
 
+O endpoint busca em patentes, programas e marcas. Use `tipo` para restringir.
+
 Parâmetros suportados:
 
-- `q`: termo livre (busca em número, título, depositante, inventor, IPC, data e situação)
+- `q`: termo livre (busca em campos textuais principais)
+- `tipo`: `patente`, `programa` ou `marca`
 - `numero`: filtro por número do processo
 - `titulo`: filtro por título
+- `marca`: filtro pelo nome da marca
+- `apresentacao`: filtro pela apresentação da marca
+- `natureza`: filtro pela natureza da marca
 - `depositante`: filtro por depositante
 - `ipc`: filtro por IPC
+- `classe_nice`: filtro por classe NICE
+- `classe_nice_status`: filtro por status da classe NICE
+- `classe_vienna`: filtro por classe de Viena
+- `despacho_codigo`: filtro por código do despacho
+- `despacho_nome`: filtro por nome do despacho
+- `procurador`: filtro por procurador
+- `prioridade_unionista`: filtro por prioridade unionista
+- `rpi_numero`: filtro por número da RPI
+- `rpi_data_publicacao`: filtro por data de publicação da RPI
 - `page`: página (padrão `1`)
 - `limit`: itens por página (padrão `20`, máximo `100`)
 
@@ -180,6 +224,12 @@ Exemplo:
 
 ```http
 GET /api/search?depositante=PETROBRAS&ipc=G06&page=2&limit=50
+```
+
+Exemplo (somente marcas):
+
+```http
+GET /api/search?tipo=marca&marca=thermocook&classe_nice=21&page=1&limit=20
 ```
 
 Resposta:
@@ -199,7 +249,7 @@ Resposta:
 }
 ```
 
-### 3) Buscar por número de processo
+### 3) Buscar por número de processo (patentes)
 
 ```http
 GET /api/patents/PI%200009520-6
@@ -207,9 +257,17 @@ GET /api/patents/PI%200009520-6
 
 Retorna o registro completo da patente, ou `404` se não encontrar.
 
+### 4) Buscar marca por número de processo
+
+```http
+GET /api/marcas/943451302
+```
+
+Retorna o registro completo da marca, ou `404` se não encontrar.
+
 ### Arquitetura da API
 
-- A API sempre considera `data/patentes.jsonl` + `data/patentes.partNNN.jsonl` (quando existirem).
+- A API considera `data/patentes*.jsonl`, `data/programas*.jsonl` e `data/marcas*.jsonl` (quando existirem).
 - Na primeira consulta, monta um índice único em memória com todos os registros.
 - O endpoint de busca consulta esse índice (sem reler disco a cada request).
 - Recarrega automaticamente o índice quando algum JSONL muda.
@@ -219,6 +277,10 @@ Retorna o registro completo da patente, ou `404` se não encontrar.
 Opcional (caso queira apontar para outro arquivo de base):
 
 - Variável de ambiente `INPI_DATA_FILE` com caminho do JSONL.
+- Variável de ambiente `INPI_PROGRAMAS_DATA_FILE` com caminho do JSONL de programas.
+- Variável de ambiente `INPI_MARCAS_DATA_FILE` com caminho do JSONL de marcas.
+- Variável de ambiente `INPI_INCLUDE_PROGRAMAS` (`true`/`false`) para incluir programas no índice.
+- Variável de ambiente `INPI_INCLUDE_MARCAS` (`true`/`false`) para incluir marcas no índice.
 
 
 # Modo rápido (só lista) — horas para completar

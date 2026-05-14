@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "scrape:programas": "node scraper_programas.js",
+    "scrape:marcas": "node scraper_marcas.js",
     "repair:mojibake": "node repair_mojibake_jsonl.js"
   },
   "keywords": [],
