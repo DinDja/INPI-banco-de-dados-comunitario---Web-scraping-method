@@ -67,26 +67,31 @@ function listJsonlFiles(file) {
   const dir = path.dirname(file);
   const ext = path.extname(file) || '.jsonl';
   const stem = path.basename(file, ext);
-  const files = [];
+  let files = [];
 
-  if (fs.existsSync(file)) {
-    files.push(file);
+  if (fs.existsSync(dir)) {
+    // Inclui todos os arquivos partXXX.jsonl
+    const partRegex = new RegExp('^' + escapeRegExp(stem) + '\.part(\\d+)' + escapeRegExp(ext) + '$');
+    const allFiles = fs.readdirSync(dir);
+    const parts = allFiles
+      .map((name) => {
+        const match = name.match(partRegex);
+        if (!match) return null;
+        return { name, index: Number(match[1]) };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.index - b.index)
+      .map(({ name }) => path.join(dir, name));
+
+    // Inclui o arquivo principal se existir
+    if (fs.existsSync(file)) {
+      files.push(file);
+    }
+
+    files = [...files, ...parts];
   }
 
-  if (!fs.existsSync(dir)) return files;
-
-  const partRegex = new RegExp('^' + escapeRegExp(stem) + '\\.part(\\d+)' + escapeRegExp(ext) + '$');
-  const parts = fs.readdirSync(dir)
-    .map((name) => {
-      const match = name.match(partRegex);
-      if (!match) return null;
-      return { name, index: Number(match[1]) };
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.index - b.index)
-    .map(({ name }) => path.join(dir, name));
-
-  return [...files, ...parts];
+  return files;
 }
 
 function resolveWritableJsonlFile(file, maxPartSizeMB) {
