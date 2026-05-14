@@ -181,9 +181,10 @@ Retorna o registro completo da patente, ou `404` se não encontrar.
 
 ### Arquitetura da API
 
-- A API lê os dados de `data/patentes.jsonl` e também de `data/patentes.partNNN.jsonl` (quando existirem).
-- Usa cache em memória para acelerar consultas.
-- Recarrega automaticamente quando o arquivo JSONL muda.
+- A API sempre considera `data/patentes.jsonl` + `data/patentes.partNNN.jsonl` (quando existirem).
+- Na primeira consulta, monta um índice único em memória com todos os registros.
+- O endpoint de busca consulta esse índice (sem reler disco a cada request).
+- Recarrega automaticamente o índice quando algum JSONL muda.
 
 ---
 

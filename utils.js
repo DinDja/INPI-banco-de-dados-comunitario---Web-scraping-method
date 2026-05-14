@@ -71,7 +71,7 @@ function listJsonlFiles(file) {
 
   if (fs.existsSync(dir)) {
     // Inclui todos os arquivos partXXX.jsonl
-    const partRegex = new RegExp('^' + escapeRegExp(stem) + '\.part(\\d+)' + escapeRegExp(ext) + '$');
+    const partRegex = new RegExp('^' + escapeRegExp(stem) + '\\.part(\\d+)' + escapeRegExp(ext) + '$');
     const allFiles = fs.readdirSync(dir);
     const parts = allFiles
       .map((name) => {
