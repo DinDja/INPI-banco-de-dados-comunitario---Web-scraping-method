@@ -3,6 +3,7 @@ const { URL } = require('url');
 
 const healthHandler = require('./api/health');
 const searchHandler = require('./api/search');
+const cacheHandler = require('./api/cache');
 const patentByNumeroHandler = require('./api/patents/[numero].js');
 
 function setFallbackHeaders(res) {
@@ -65,6 +66,11 @@ function requestHandler(req, res) {
 
   if (pathname === '/api/search') {
     searchHandler(req, res);
+    return;
+  }
+
+  if (pathname === '/api/cache/clear') {
+    cacheHandler(req, res);
     return;
   }
 
