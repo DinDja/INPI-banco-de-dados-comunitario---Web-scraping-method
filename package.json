@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "scrape:programas": "node scraper_programas.js",
+    "repair:mojibake": "node repair_mojibake_jsonl.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "adm-zip": "^0.5.17",
     "dayjs": "^1.11.20",
     "jsonlines": "^0.1.1",
     "p-limit": "^7.3.0",

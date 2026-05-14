@@ -55,6 +55,24 @@ Depois de rodar o modo `list`, enriquece os registros com dados da página de de
 node scraper.js enrich
 ```
 
+### 5. Programas de Computador (scraper isolado)
+
+Coleta dados da RPI (Secao VII - Programa de Computador) em um pipeline separado do scraper de patentes.
+
+```bash
+npm run scrape:programas
+# ou
+node scraper_programas.js
+```
+
+Regras aplicadas no scraper de programas:
+
+- Usa arquivos dedicados (nao sobrescreve JSONL/checkpoints de patentes).
+- Mantem rotacao automatica de JSONL por tamanho (`25MB` por padrao).
+- Exclui indeferidos de forma conservadora:
+  - so aceita despacho `730` (Expedicao do Certificado de Registro);
+  - rejeita registros cujo texto de despacho contenha `indefer`.
+
 ---
 
 ## Retomada automática
@@ -76,6 +94,16 @@ Para evitar arquivos gigantes, a saída JSONL é particionada automaticamente po
 | `data/progress.json` | Checkpoint de progresso |
 | `data/seen_ids.json` | IDs já processados (deduplicação) |
 | `data/errors.log` | Log de erros |
+
+### Arquivos gerados (programas)
+
+| Arquivo | Descrição |
+|---|---|
+| `data/programas.jsonl` | Base principal de programas de computador |
+| `data/programas.part001.jsonl`, `data/programas.part002.jsonl`, ... | Continuação automática quando atingir o limite de tamanho |
+| `data/progress_programas.json` | Checkpoint do scraper de programas |
+| `data/seen_ids_programas.json` | IDs já processados (deduplicação) |
+| `data/errors_programas.log` | Log de erros do scraper de programas |
 
 ---
 
