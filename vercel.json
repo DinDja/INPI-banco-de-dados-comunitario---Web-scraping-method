@@ -4,10 +4,6 @@
     "api/**/*.js": {
       "includeFiles": "data/patentes*.jsonl",
       "maxDuration": 60
-    },
-    "index.js": {
-      "includeFiles": "data/patentes*.jsonl",
-      "maxDuration": 60
     }
   }
 }
