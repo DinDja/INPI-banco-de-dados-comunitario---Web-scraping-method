@@ -55,7 +55,71 @@ Depois de rodar o modo `list`, enriquece os registros com dados da página de de
 node scraper.js enrich
 ```
 
-### 5. Programas de Computador (scraper isolado)
+### 5. Patentes via RPI (recomendado para garantir depositante)
+
+Coleta patentes pela **Revista da Propriedade Industrial (Secao VI)**, sem depender do BuscaWeb.
+
+```bash
+npm run scrape:patentes:rpi
+# ou
+node scraper_patentes_rpi.js
+```
+
+Para refazer a base de patentes do zero (limpa `patentes*.jsonl` + checkpoints do scraper RPI):
+
+```powershell
+$env:INPI_PATENTES_RPI_FRESH_START='true'
+npm run scrape:patentes:rpi
+```
+
+Variaveis uteis:
+
+- `INPI_PATENTES_START_RPI` (padrao: `2404`)
+- `INPI_PATENTES_END_RPI` (padrao: detecta a RPI mais recente)
+- `INPI_PATENTES_REQUIRE_DEPOSITANTE` (padrao: `true`)
+- `INPI_PATENTES_DEDUPE_BY_NUMERO` (padrao: `true`)
+
+Se voce ja tem `patentes*.jsonl` e quer **apenas preencher campos nulos/vazios** (sem recriar toda a base):
+
+```bash
+npm run patentes:fill:nulls:rpi
+```
+
+Esse comando:
+
+- reaproveita os registros atuais;
+- preenche somente campos faltantes (`depositante`, `titular`, `inventor`, `ipc`, `titulo`, `data_deposito`);
+- regrava apenas os arquivos alterados;
+- cria backup automatico (`*.bak-null-enrich-*`) por padrao.
+
+Exemplo com faixa de RPI:
+
+```powershell
+$env:INPI_PATENTES_START_RPI='2800'
+$env:INPI_PATENTES_END_RPI='2888'
+npm run patentes:fill:nulls:rpi
+```
+
+Se quiser reiniciar o checkpoint desse enriquecimento:
+
+```powershell
+$env:INPI_PATENTES_NULL_ENRICH_RESET_PROGRESS='true'
+npm run patentes:fill:nulls:rpi
+```
+
+Se quiser fazer tudo em um comando (buscar novos + preencher nulos dos antigos):
+
+```bash
+npm run patentes:sync:rpi
+```
+
+Esse fluxo:
+
+- adiciona patentes novas da RPI;
+- evita duplicar base existente (bootstrap automatico de IDs ja salvos);
+- completa campos faltantes dos registros ja existentes.
+
+### 6. Programas de Computador (scraper isolado)
 
 Coleta dados da RPI (Secao VII - Programa de Computador) em um pipeline separado do scraper de patentes.
 
@@ -73,7 +137,7 @@ Regras aplicadas no scraper de programas:
   - so aceita despacho `730` (Expedicao do Certificado de Registro);
   - rejeita registros cujo texto de despacho contenha `indefer`.
 
-### 6. Marcas (scraper isolado)
+### 7. Marcas (scraper isolado)
 
 Coleta dados da RPI (Secao V - Marcas) em um pipeline separado dos scrapers de patentes e programas.
 
@@ -112,6 +176,9 @@ Para evitar arquivos gigantes, a saída JSONL é particionada automaticamente po
 | `data/progress.json` | Checkpoint de progresso |
 | `data/seen_ids.json` | IDs já processados (deduplicação) |
 | `data/errors.log` | Log de erros |
+| `data/progress_patentes_rpi.json` | Checkpoint do scraper de patentes via RPI |
+| `data/seen_ids_patentes_rpi.json` | IDs já processados no scraper de patentes via RPI |
+| `data/errors_patentes_rpi.log` | Log de erros do scraper de patentes via RPI |
 
 ### Arquivos gerados (programas)
 
@@ -273,14 +340,6 @@ Retorna o registro completo da marca, ou `404` se não encontrar.
 - Recarrega automaticamente o índice quando algum JSONL muda.
 
 ---
-
-Opcional (caso queira apontar para outro arquivo de base):
-
-- Variável de ambiente `INPI_DATA_FILE` com caminho do JSONL.
-- Variável de ambiente `INPI_PROGRAMAS_DATA_FILE` com caminho do JSONL de programas.
-- Variável de ambiente `INPI_MARCAS_DATA_FILE` com caminho do JSONL de marcas.
-- Variável de ambiente `INPI_INCLUDE_PROGRAMAS` (`true`/`false`) para incluir programas no índice.
-- Variável de ambiente `INPI_INCLUDE_MARCAS` (`true`/`false`) para incluir marcas no índice.
 
 
 # Modo rápido (só lista) — horas para completar

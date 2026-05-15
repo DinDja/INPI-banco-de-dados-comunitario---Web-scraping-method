@@ -1,17 +1,24 @@
-# Node modules
+# Ignore everything by default
+*
+!.gitignore
+!package.json
+!README.md
+
+# Include API directory and all its contents
+!api/
+!api/**
+
+# Include data directory but only specific files
+!data/
+!data/patentes.jsonl
+!data/patentes.part*.jsonl
+!data/programas.jsonl
+!data/programas.part*.jsonl
+
+# Node modules (keep ignored even with wildcard exception)
 node_modules/
 npm-debug.log
 package-lock.json
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-pip-log.txt
 
 # IDE
 .vscode/
@@ -23,11 +30,6 @@ pip-log.txt
 # OS
 .DS_Store
 Thumbs.db
-
-# Build
-dist/
-build/
-*.log
 
 # Environment variables
 .env

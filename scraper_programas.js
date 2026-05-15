@@ -5,9 +5,8 @@
  * - Nao altera codigo/arquivos do scraper de patentes.
  * - Usa arquivos dedicados: programas.jsonl, progress_programas.json, seen_ids_programas.json.
  * - Mantem a mesma logica de rotacao JSONL por tamanho (25MB por padrao).
- * - Exclui indeferidos de forma conservadora:
- *   1) Mantem somente despacho 730 (Expedicao do Certificado de Registro).
- *   2) Rejeita texto de despacho contendo "indefer".
+ * - Filtros de despacho sao configuraveis via config_programas.js.
+ *   Por padrao, coleta todos os despachos (incluindo indeferidos).
  *
  * Execucao:
  *   node scraper_programas.js

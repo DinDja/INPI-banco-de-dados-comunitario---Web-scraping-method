@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "scrape:patentes:rpi": "node scraper_patentes_rpi.js",
+    "patentes:fill:nulls:rpi": "node enrich_patentes_nulls_rpi.js",
+    "patentes:sync:rpi": "node sync_patentes_rpi.js",
     "scrape:programas": "node scraper_programas.js",
     "scrape:marcas": "node scraper_marcas.js",
     "repair:mojibake": "node repair_mojibake_jsonl.js"

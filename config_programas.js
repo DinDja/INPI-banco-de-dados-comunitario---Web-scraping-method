@@ -20,11 +20,11 @@ module.exports = {
   // Se null, detecta automaticamente a RPI mais recente no indice
   endRpi: process.env.INPI_PROGRAMAS_END_RPI ? Number(process.env.INPI_PROGRAMAS_END_RPI) : null,
 
-  // Garantia contra indeferidos:
-  // - Mantem somente despachos 730 (Expedicao do Certificado de Registro)
-  // - Tambem descarta qualquer registro cujo texto do despacho mencione indeferimento
-  allowedDispatchCodes: ['730'],
-  rejectIfTextMatches: ['indefer'],
+  // Filtros de despacho:
+  // - Vazio = aceita todos os codigos (inclui deferidos e indeferidos)
+  // - Lista com termos = descarta registro quando o texto do despacho contem o termo
+  allowedDispatchCodes: [],
+  rejectIfTextMatches: [],
 
   // Armazenamento (mesma logica de rotacao por tamanho)
   maxJsonlPartSizeMB: Number(process.env.INPI_MAX_JSONL_PART_MB || 25),
