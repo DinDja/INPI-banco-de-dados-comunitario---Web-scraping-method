@@ -5,5 +5,14 @@
       "includeFiles": "data/*.jsonl",
       "maxDuration": 60
     }
+  },
+  "env": {
+    "VERCEL_SUPPORT_LARGE_FUNCTIONS": "1",
+    "INPI_USE_FLEXSEARCH": "true",
+    "INPI_MAX_RECORDS_TO_INDEX": "30000",
+    "INPI_LAZY_BUILD_INDEXES": "true",
+    "INPI_ENABLE_CACHE": "true",
+    "INPI_ENABLE_QUERY_LOG": "true",
+    "INPI_ADMIN_TOKEN": "admin-secret-token"
   }
 }
