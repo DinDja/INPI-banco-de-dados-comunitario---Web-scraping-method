@@ -1,9 +1,13 @@
 const http = require('http');
 const { URL } = require('url');
+const path = require('path');
+const fs = require('fs');
 
 const healthHandler = require('./api/health');
 const searchHandler = require('./api/search');
 const cacheHandler = require('./api/cache');
+const adminStatsHandler = require('./api/admin/stats');
+const adminRealtimeHandler = require('./api/admin/realtime');
 const patentByNumeroHandler = require('./api/patents/[numero].js');
 
 function setFallbackHeaders(res) {
@@ -74,6 +78,28 @@ function requestHandler(req, res) {
     return;
   }
 
+  if (pathname === '/api/admin/stats') {
+    adminStatsHandler(req, res);
+    return;
+  }
+
+  if (pathname.startsWith('/api/admin/')) {
+    sendJson(res, 401, { error: 'unauthorized', message: 'Admin endpoint requires token' });
+    return;
+  }
+
+  if (pathname === '/dashboard') {
+    const dashboardPath = path.join(__dirname, 'public', 'dashboard.html');
+    if (fs.existsSync(dashboardPath)) {
+      const html = fs.readFileSync(dashboardPath, 'utf8');
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.statusCode = 200;
+      res.end(html);
+      return;
+    }
+  }
+
   if (pathname.startsWith('/api/patents/')) {
     const numero = decodeURIComponent(pathname.slice('/api/patents/'.length)).trim();
     req.query = { ...(req.query || {}), numero };
@@ -85,7 +111,36 @@ function requestHandler(req, res) {
     sendJson(res, 200, {
       ok: true,
       service: 'inpi-search-api',
-      endpoints: ['/api/health', '/api/search', '/api/patents/:numero'],
+      version: '6.0.0',
+      endpoints: {
+        public: [
+          '/api/health',
+          '/api/search',
+          '/api/patents/:numero',
+          '/api/cache/clear',
+          '/dashboard',
+        ],
+        admin: [
+          '/api/admin/stats (requires x-admin-token header)',
+          '/api/admin/realtime (requires x-admin-token header)',
+        ],
+      },
+      features: {
+        bm25_scoring: true,
+        query_parsing: true,
+        spell_correction: true,
+        highlighting: true,
+        query_logging: true,
+        caching: true,
+        analytics: true,
+        realtime_dashboard: true,
+        lazy_loading: true,
+        compression: true,
+      },
+      documentation: {
+        dashboard: '/dashboard',
+        openapi: '/api/docs',
+      },
     });
     return;
   }

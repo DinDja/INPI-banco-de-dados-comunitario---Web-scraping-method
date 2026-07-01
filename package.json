@@ -19,6 +19,7 @@
   "dependencies": {
     "adm-zip": "^0.5.17",
     "dayjs": "^1.11.20",
+    "flexsearch": "^0.7.43",
     "jsonlines": "^0.1.1",
     "p-limit": "^7.3.0",
     "playwright": "^1.60.0",
