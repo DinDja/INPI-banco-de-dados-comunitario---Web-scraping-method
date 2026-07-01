@@ -9,6 +9,7 @@ const cacheHandler = require('./api/cache');
 const adminStatsHandler = require('./api/admin/stats');
 const adminRealtimeHandler = require('./api/admin/realtime');
 const patentByNumeroHandler = require('./api/patents/[numero].js');
+const marcaByNumeroHandler = require('./api/marcas/[numero].js');
 
 function setFallbackHeaders(res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -104,6 +105,13 @@ function requestHandler(req, res) {
     const numero = decodeURIComponent(pathname.slice('/api/patents/'.length)).trim();
     req.query = { ...(req.query || {}), numero };
     patentByNumeroHandler(req, res);
+    return;
+  }
+
+  if (pathname.startsWith('/api/marcas/')) {
+    const numero = decodeURIComponent(pathname.slice('/api/marcas/'.length)).trim();
+    req.query = { ...(req.query || {}), numero };
+    marcaByNumeroHandler(req, res);
     return;
   }
 
