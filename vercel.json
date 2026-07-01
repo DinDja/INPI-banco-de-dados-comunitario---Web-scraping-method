@@ -1,13 +1,31 @@
 {
   "version": 2,
   "functions": {
-    "api/**/*.js": {
+    "api/health.js": {
+      "maxDuration": 30
+    },
+    "api/search.js": {
+      "includeFiles": "data/*.jsonl",
+      "maxDuration": 60
+    },
+    "api/cache.js": {
+      "includeFiles": "data/*.jsonl",
+      "maxDuration": 60
+    },
+    "api/admin/**/*.js": {
+      "includeFiles": "data/*.jsonl",
+      "maxDuration": 60
+    },
+    "api/patents/**/*.js": {
+      "includeFiles": "data/*.jsonl",
+      "maxDuration": 60
+    },
+    "api/marcas/**/*.js": {
       "includeFiles": "data/*.jsonl",
       "maxDuration": 60
     }
   },
   "env": {
-    "VERCEL_SUPPORT_LARGE_FUNCTIONS": "1",
     "INPI_USE_FLEXSEARCH": "true",
     "INPI_MAX_RECORDS_TO_INDEX": "30000",
     "INPI_LAZY_BUILD_INDEXES": "true",
