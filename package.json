@@ -23,7 +23,7 @@
     "p-limit": "^7.3.0"
   },
   "devDependencies": {
-    "adm-zip": "^0.5.17",
+    "adm-zip": "^0.5.18",
     "playwright": "^1.60.0",
     "puppeteer-core": "^24.43.1"
   }

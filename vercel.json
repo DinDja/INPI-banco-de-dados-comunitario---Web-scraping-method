@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "public": true,
   "functions": {
     "api/health.js": {
       "maxDuration": 30
@@ -25,6 +26,23 @@
       "maxDuration": 60
     }
   },
+  "routes": [
+    {
+      "src": "/dashboard",
+      "dest": "/public/dashboard.html"
+    },
+    {
+      "src": "/public/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=0, must-revalidate"
+      },
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ],
   "env": {
     "INPI_USE_FLEXSEARCH": "true",
     "INPI_MAX_RECORDS_TO_INDEX": "30000",
